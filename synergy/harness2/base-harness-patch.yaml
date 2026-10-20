@@ -1,0 +1,48 @@
+
+# SYNERGY PATCH - merge into Harness² base harness
+# This makes Harness² and Context Mode feed each other
+
+system_prompt: |
+  You are running Harness²-CM Synergy.
+  CORE RULES:
+  1. THINK IN CODE: If you need data from >3 files, write a JS script via ctx_execute that loops and console.log()s only the answer. Never Read() in loop.
+  2. SANDBOX FIRST: For any file >5KB, log, snapshot, issues list, use ctx_batch_execute or ctx_index, then ctx_search.
+  3. SHARED DB: All parallel probes share ${HARNESS2_RUNS_DIR}/${task_id}/context.db (WAL mode). Don't create per-probe DB.
+  4. COMPOSE FROM EVIDENCE: When composing final harness, call ctx-compose-evidence --db <shared> -- don't read raw probe logs.
+  5. LESSONS: At end of task, write lesson with tokens_saved to global DB ${HARNESS2_RUNS_DIR}/_global/context.db
+
+memory:
+  type: context-mode-fabric
+  shared_db: "${HARNESS2_RUNS_DIR}/${task_id}/context.db"
+  global_lessons_db: "${HARNESS2_RUNS_DIR}/_global/context.db"
+  fts5: true
+  bm25: true
+  on_compact: "inject <2KB snapshot of file edits, tasks, errors, top 3 lessons"
+
+tool_guidance:
+  prefer: ["ctx_execute", "ctx_batch_execute", "ctx_search", "ctx_fetch_and_index", "ctx_compose_evidence"]
+  avoid: ["Read in loop", "Bash cat large files", "WebFetch without indexing"]
+  examples:
+    - before: "47x Read() = 700KB"
+      after: "1x ctx_execute('js', 'fs.readdirSync...') = 3.6KB"
+
+guardrails:
+  - id: token_budget
+    check: "ctx-stats tokens > 150k -> abort, lesson: too expensive"
+  - id: secrets_redaction
+    check: "never index .env, *.key, *secret*"
+
+plugins:
+  - name: context-mode
+    command: context-mode
+    args: ["--shared-db", "${HARNESS2_RUNS_DIR}/${task_id}/context.db", "--global-lessons", "${HARNESS2_RUNS_DIR}/_global/context.db"]
+
+subagents:
+  share_fabric: true
+  fabric_mode: wal
+
+skills:
+  - name: context-search
+    desc: "Write BM25 queries: ctx_search('500 error IP pattern')"
+  - name: compose-evidence
+    desc: "Aggregate across K probes: node ctx-compose-evidence.js --db <shared>"

@@ -1,0 +1,31 @@
+{
+  "version": "harness2-cm-v1",
+  "description": "Persistent improvement harness - updated every session by Harness\u00b2-CM",
+  "created": "2026-10-20",
+  "lessons": [
+    {
+      "id": "lesson_001",
+      "lesson": "On log-heavy tasks, sandbox first with ctx_batch_execute then ctx_search",
+      "evidence": "Access log 45KB -> 155B, 100% saved",
+      "applies_to": [
+        "WorkBuddy-Bench",
+        "JobBench"
+      ],
+      "tokens_saved": 45000
+    },
+    {
+      "id": "lesson_002",
+      "lesson": "Replace N x Read with 1 x ctx_execute that loops",
+      "evidence": "47 x Read = 700KB -> 1 x ctx_execute = 3.6KB",
+      "applies_to": [
+        "all"
+      ],
+      "tokens_saved": 696400
+    }
+  ],
+  "context_fabric": {
+    "shared_db": "$HARNESS2_RUNS_DIR/_global/context.db",
+    "wal_mode": true,
+    "redact_secrets": true
+  }
+}

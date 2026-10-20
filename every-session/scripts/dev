@@ -1,0 +1,21 @@
+#!/bin/bash
+# Daily driver - Harness² + Context Mode every session
+set -e
+echo "==> Starting dev session with Context Mode + Harness²"
+
+# Ensure context-mode is healthy
+context-mode doctor 2>/dev/null || npx -y context-mode doctor || echo "ctx-doctor skipped"
+
+# Ensure runs dir
+mkdir -p $HARNESS2_RUNS_DIR/daily/$(date +%Y%m%d)
+
+echo "Context savings so far:"
+context-mode stats 2>/dev/null || npx -y context-mode stats || echo "Run ctx-stats inside agent"
+
+echo ""
+echo "Harness² improvement harness:"
+cat $HARNESS2_RUNS_DIR/_global/improvement-harness.json 2>/dev/null || cat ~/.harness2/improvement-harness.json 2>/dev/null || echo "No improvement harness yet"
+
+echo ""
+echo "Ready. Open your agent (claude, opencode, codex, gemini) - Context Mode is auto-hooked."
+echo "Tip: use 'ctx-search <query>' inside agent instead of grep"

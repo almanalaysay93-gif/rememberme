@@ -1,0 +1,20 @@
+# Context Fabric config for shared DB across K probes
+fabric:
+  db_path: "${HARNESS2_RUNS_DIR}/${bench}/${task_id}/context.db"
+  wal: true
+  fts5: true
+  bm25: true
+  tables:
+    - tool_outputs
+    - session_events
+    - lessons
+  redaction:
+    patterns:
+      - "\.env"
+      - ".*\.key$"
+      - ".*secret.*"
+  hooks:
+    opencode: true
+    codex: true
+    gemini: true
+    vscode: true

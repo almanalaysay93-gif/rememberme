@@ -1,0 +1,30 @@
+#!/bin/bash
+# dev - every-session driver with synergy
+set -e
+export HARNESS2_RUNS_DIR="${HARNESS2_RUNS_DIR:-$HOME/.harness2/runs}"
+export CONTEXT_MODE_SHARED_DB="${CONTEXT_MODE_SHARED_DB:-$HARNESS2_RUNS_DIR/_global/context.db}"
+mkdir -p $HARNESS2_RUNS_DIR/_global
+
+echo "=== Harness² + Context Mode SYNERGY Session ==="
+echo "Shared DB: $CONTEXT_MODE_SHARED_DB"
+echo "Task DB will be: $HARNESS2_RUNS_DIR/\${task_id}/context.db"
+
+# Health
+context-mode doctor 2>/dev/null || npx -y context-mode doctor || echo "[skip] ctx-doctor"
+
+# Show top lessons (synergy loop 3)
+echo ""
+echo "Top lessons from global DB:"
+if command -v sqlite3 &>/dev/null && [ -f "$CONTEXT_MODE_SHARED_DB" ]; then
+  sqlite3 "$CONTEXT_MODE_SHARED_DB" "SELECT lesson, tokens_saved FROM lessons ORDER BY tokens_saved DESC LIMIT 3;" 2>/dev/null || echo "No lessons yet"
+else
+  cat ~/.harness2/improvement-harness.json 2>/dev/null | head -20 || echo "No lessons file yet"
+fi
+
+echo ""
+echo "Live savings:"
+context-mode stats 2>/dev/null || echo "Run ctx-stats inside agent"
+
+echo ""
+echo "Ready. Open Claude/OpenCode/Codex/Gemini - Context Fabric auto-hooked with shared DB."
+echo "For parallel K: harness2 --bench wb --k 3 --mode parallel (now safe, 32KB not 1.8MB)"

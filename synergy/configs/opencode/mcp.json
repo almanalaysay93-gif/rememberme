@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "context-mode": {
+      "command": "context-mode",
+      "args": [
+        "--shared-db",
+        "${HARNESS2_RUNS_DIR}/${task_id}/context.db"
+      ]
+    }
+  },
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode pretooluse --shared"
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode posttooluse --shared"
+      }
+    ],
+    "sessionStart": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode sessionstart --load-lessons"
+      }
+    ],
+    "preCompact": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode precompact --snapshot"
+      }
+    ]
+  },
+  "synergy": {
+    "shared_db": "${HARNESS2_RUNS_DIR}/${task_id}/context.db",
+    "global_lessons_db": "${HARNESS2_RUNS_DIR}/_global/context.db",
+    "composer_tool": "ctx-compose-evidence"
+  }
+}

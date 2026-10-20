@@ -1,0 +1,5 @@
+/plugin marketplace add mksglu/context-mode
+/plugin install context-mode@context-mode
+/reload-plugins
+/context-mode:ctx-doctor
+/context-mode:ctx-stats

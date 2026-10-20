@@ -1,0 +1,49 @@
+{
+  "version": "harness2-cm-synergy-v2",
+  "fabric": {
+    "type": "context-mode",
+    "fts5": true,
+    "wal": true,
+    "shared_per_task": true
+  },
+  "lessons": [
+    {
+      "id": "cm_001",
+      "lesson": "Sandbox all >5KB outputs via ctx_batch_execute, then ctx_search",
+      "evidence": "56KB snapshot -> 299B, 99% saved",
+      "tokens_saved": 55700,
+      "bench": "all"
+    },
+    {
+      "id": "cm_002",
+      "lesson": "Replace Read() loop with 1x ctx_execute JS loop",
+      "evidence": "47 Reads 700KB -> 1 exec 3.6KB",
+      "tokens_saved": 696400,
+      "bench": "all"
+    },
+    {
+      "id": "cm_003",
+      "lesson": "For parallel recursion, use shared DB WAL mode, not per-probe DB",
+      "evidence": "K=3 parallel OOM without, 32KB with",
+      "tokens_saved": 1850000,
+      "bench": "WorkBuddy"
+    },
+    {
+      "id": "h2_001",
+      "lesson": "Composer must use ctx-compose-evidence aggregated summary, not raw logs",
+      "evidence": "Raw 1.8MB -> summary 2KB",
+      "tokens_saved": 1798000,
+      "bench": "all"
+    }
+  ],
+  "guardrails": [
+    {
+      "id": "token_budget",
+      "description": "Abort probe if ctx-stats >150k tokens, mark as expensive"
+    },
+    {
+      "id": "think_in_code",
+      "description": "Mandatory: >3 file reads must use ctx_execute, not Read() loop"
+    }
+  ]
+}

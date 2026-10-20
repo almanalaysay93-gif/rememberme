@@ -1,0 +1,47 @@
+# Patch to apply to your Harness² base harness
+# Merge this into your harness template
+
+system_prompt_additions: |
+  You have Context Mode available. THINK IN CODE.
+  - For any file >5KB, use ctx_execute not Read
+  - For searching logs/issues, use ctx_search after ctx_index
+  - You have 11 tools: ctx_batch_execute, ctx_execute, ctx_execute_file, ctx_index, ctx_search, ctx_fetch_and_index, ctx_stats, ctx_doctor, ctx_upgrade, ctx_purge, ctx_insight
+  - When context compacts, rely on the <2KB snapshot injected by context-mode
+
+tool_guidance:
+  mandatory:
+    - "If task needs >3 file reads, use ctx_batch_execute with JS loop"
+    - "If task needs grep across logs, use ctx_index then ctx_search"
+  forbidden:
+    - "Read() in a for loop"
+    - "WebFetch without ctx_fetch_and_index for large pages"
+
+guardrails:
+  - id: token_budget
+    description: "Abort probe if tokens >150k"
+    check: "ctx-stats --json | jq '.total_tokens > 150000'"
+  - id: secrets_filter
+    description: "Redact secrets before indexing"
+    check: "Do not index .env, *.key, *secret*"
+
+plugins:
+  - name: context-mode
+    command: context-mode
+    shared_db: "${HARNESS2_RUNS_DIR}/${task_id}/context.db"
+    hooks:
+      - SessionStart
+      - PreToolUse
+      - PostToolUse
+      - PreCompact
+
+skills:
+  - name: context-search
+    description: "Write BM25 queries for FTS5"
+    examples:
+      - "ctx_search('error 500 IP pattern')"
+      - "ctx_search('antitrust competition clause')"
+
+scripts:
+  - name: ctx_compose_evidence
+    path: "./scripts/ctx-compose-evidence.js"
+    description: "Aggregates evidence across K parallel probes for Composer"

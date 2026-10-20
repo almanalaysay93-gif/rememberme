@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "context-mode": {
+      "command": "context-mode"
+    }
+  },
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode pretooluse"
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode posttooluse"
+      }
+    ],
+    "sessionStart": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode sessionstart"
+      }
+    ],
+    "preCompact": [
+      {
+        "type": "command",
+        "command": "context-mode hook opencode precompact"
+      }
+    ]
+  }
+}

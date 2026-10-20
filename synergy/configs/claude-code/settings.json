@@ -1,0 +1,32 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "context-mode statusline"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "context-mode hook claude-code sessionstart"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook claude-code pretooluse"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "context-mode hook claude-code posttooluse"
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "context-mode hook claude-code precompact"
+      }
+    ]
+  }
+}
